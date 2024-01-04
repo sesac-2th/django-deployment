@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-deployment
+spec:
+  selector:
+    matchLabels:
+      app: django-auth
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: django-auth
+    spec:
+      containers:
+      - name: django-auth-app
+        image: woongpang/django-login2:latest
+        envFrom:
+        - configMapRef:
+            name: config-db-django
+        - secretRef:
+            name: secret-db
+        ports:
+        - containerPort: 8000
+        command:
+        - "/bin/sh"
+        - "-c"
+        - |
+           python manage.py makemigrations
+           python manage.py migrate
+           gunicorn login.wsgi:application -b "0.0.0.0:8000" --timeout 180
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-jango
+spec:
+  selector:
+    app: django-auth
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8000
+  type: ClusterIP
