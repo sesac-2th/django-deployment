@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: django-auth-app
-        image: woongpang/django-login2:latest
+        image: woongpang/django-login2:17
         envFrom:
         - configMapRef:
             name: config-db-django
